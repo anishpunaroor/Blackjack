@@ -9,6 +9,21 @@ import (
 
 type Hand []deck.Card
 
+type State int8
+
+const (
+	StatePlayerTurn State = iota
+	StateDealerTurn
+	StateHandOver
+)
+
+type GameState struct {
+	Deck   []deck.Card
+	State  State
+	Player Hand
+	Dealer Hand
+}
+
 // Print out the suit and rank of all cards in the hand
 func (h Hand) String() string {
 	strs := make([]string, len(h))
@@ -54,6 +69,8 @@ func min(a, b int) int {
 
 func main() {
 	cards := deck.New(deck.NumDeck(3), deck.Shuffle)
+	var gs GameState
+	gs.Deck = deck.New(deck.NumDeck(3), deck.Shuffle)
 	var card deck.Card
 	var player, dealer Hand
 	for i := 0; i < 2; i++ {
@@ -106,4 +123,28 @@ func main() {
 // Draw a card from the top
 func draw(cards []deck.Card) (deck.Card, []deck.Card) {
 	return cards[0], cards[1:]
+}
+
+func (gs *GameState) CurrentPlayer() *Hand {
+	switch gs.State {
+	case StatePlayerTurn:
+		return &gs.Player
+	case StateDealerTurn:
+		return &gs.Dealer
+	default:
+		panic("It isn't currently any player's turn.")
+	}
+}
+
+func clone(gs GameState) GameState {
+	ret := GameState{
+		Deck:   make([]deck.Card, len(gs.Deck)),
+		State:  gs.State,
+		Player: make(Hand, len(gs.Player)),
+		Dealer: make(Hand, len(gs.Dealer)),
+	}
+	copy(ret.Deck, gs.Deck)
+	copy(ret.Player, gs.Player)
+	copy(ret.Dealer, gs.Dealer)
+	return ret
 }
