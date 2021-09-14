@@ -9,6 +9,7 @@ import (
 
 type Hand []deck.Card
 
+// Print out the suit and rank of all cards in the hand
 func (h Hand) String() string {
 	strs := make([]string, len(h))
 	for i := range h {
@@ -19,6 +20,20 @@ func (h Hand) String() string {
 
 func (h Hand) DealerString() string {
 	return h[0].String() + ", HIDDEN"
+}
+
+// Determine the score of the hand, accounting for Ace's special case
+func (h Hand) Score() int {
+	minScore := h.MinScore()
+	if minScore > 11 {
+		return minScore
+	}
+	for _, c := range h {
+		if c.Rank == deck.Ace {
+			return minScore + 10
+		}
+	}
+	return minScore
 }
 
 func (h Hand) MinScore() int {
@@ -65,10 +80,11 @@ func main() {
 
 	}
 	fmt.Println("--FINAL HANDS--")
-	fmt.Println("Player: ", player, "\nScore: ", player.MinScore())
-	fmt.Println("Dealer: ", dealer, "\nScore: ", dealer.MinScore())
+	fmt.Println("Player: ", player, "\nScore: ", player.Score())
+	fmt.Println("Dealer: ", dealer, "\nScore: ", dealer.Score())
 }
 
+// Draw a card from the top
 func draw(cards []deck.Card) (deck.Card, []deck.Card) {
 	return cards[0], cards[1:]
 }

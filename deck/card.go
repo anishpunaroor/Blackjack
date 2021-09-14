@@ -61,7 +61,7 @@ type NewOpts struct {
 	Shuffle bool
 }
 
-// Initialize a deck of cards, and shuffle/sort them
+// Initialize a deck of cards, and shuffle/sort them based on options
 func New(opts ...func([]Card) []Card) []Card {
 	var cards []Card
 	for _, suit := range suits {
@@ -75,6 +75,7 @@ func New(opts ...func([]Card) []Card) []Card {
 	return cards
 }
 
+// Sort cards by absolute rank
 func DefaultSort(cards []Card) []Card {
 	sort.Slice(cards, Less(cards))
 	return cards
@@ -87,16 +88,19 @@ func Sort(less func(cards []Card) func(i, j int) bool) func([]Card) []Card {
 	}
 }
 
+// Absolute Rank comparator
 func Less(cards []Card) func(i, j int) bool {
 	return func(i, j int) bool {
 		return absRank(cards[i]) < absRank(cards[j])
 	}
 }
 
+// Determine the absolute rank of a card (like an array index)
 func absRank(c Card) int {
 	return int(c.Suit) * int(maxRank) * int(c.Rank)
 }
 
+// Shuffle the deck of cards using randomized permutations
 func Shuffle(cards []Card) []Card {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	shuf := make([]Card, len(cards))
@@ -107,6 +111,7 @@ func Shuffle(cards []Card) []Card {
 	return shuf
 }
 
+// Add a varying amount of Jokers to the deck
 func Jokers(n int) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		for i := 0; i < n; i++ {
@@ -119,6 +124,7 @@ func Jokers(n int) func([]Card) []Card {
 	}
 }
 
+// Filter the deck and remove any cards as specified
 func Filter(f func(card Card) bool) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		var fil []Card
@@ -131,6 +137,7 @@ func Filter(f func(card Card) bool) func([]Card) []Card {
 	}
 }
 
+// Add multiple copies of a standard deck
 func NumDeck(n int) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		var deck []Card
