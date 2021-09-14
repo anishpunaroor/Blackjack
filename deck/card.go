@@ -98,13 +98,11 @@ func absRank(c Card) int {
 }
 
 func Shuffle(cards []Card) []Card {
-	shuf := make([]Card, len(cards))
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	for len(shuf) > 0 {
-		n := len(shuf)
-		randIndex := r.Intn(n)
-		shuf[n-1], shuf[randIndex] = shuf[randIndex], shuf[n-1]
-		shuf = shuf[:n-1]
+	shuf := make([]Card, len(cards))
+	perm := r.Perm(len(cards))
+	for i, randInd := range perm {
+		shuf[i] = cards[randInd]
 	}
 	return shuf
 }
@@ -133,7 +131,7 @@ func Filter(f func(card Card) bool) func([]Card) []Card {
 	}
 }
 
-func Deck(n int) func([]Card) []Card {
+func NumDeck(n int) func([]Card) []Card {
 	return func(cards []Card) []Card {
 		var deck []Card
 		for i := 0; i < n; i++ {
