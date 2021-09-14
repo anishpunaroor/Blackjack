@@ -49,8 +49,6 @@ type Card struct {
 	Rank
 }
 
-type Deck []Card
-
 // String representation of a card
 func (c Card) String() string {
 	if c.Suit == Joker {
@@ -132,5 +130,15 @@ func Filter(f func(card Card) bool) func([]Card) []Card {
 			}
 		}
 		return fil
+	}
+}
+
+func Deck(n int) func([]Card) []Card {
+	return func(cards []Card) []Card {
+		var deck []Card
+		for i := 0; i < n; i++ {
+			deck = append(deck, cards...)
+		}
+		return deck
 	}
 }
