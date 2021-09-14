@@ -1,6 +1,9 @@
 package deck
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Suit uint8
 
@@ -44,6 +47,8 @@ type Card struct {
 	Rank
 }
 
+type Deck []Card
+
 // String representation of a card
 func (c Card) String() string {
 	if c.Suit == Joker {
@@ -52,15 +57,35 @@ func (c Card) String() string {
 	return fmt.Sprintf("%s of %ss", c.Rank.String(), c.Suit.String())
 }
 
-type Deck []Card
+type NewOpts struct {
+	Shuffle bool
+}
 
-func New() []Card {
+// Initialize a deck of cards, and shuffle/sort them
+func New(opts ...func([]Card) []Card) []Card {
 	var cards []Card
 	for _, suit := range suits {
 		for rank := minRank; rank <= maxRank; rank++ {
 			cards = append(cards, Card{Suit: suit, Rank: rank})
 		}
 	}
-
+	for _, opt := range opts {
+		cards = opt(cards)
+	}
 	return cards
+}
+
+func DefaultSort(cards []Card) []Card {
+	sort.Slice(cards, Less(cards))
+	return cards
+}
+
+func Less(cards []Card) func(i, j int) bool {
+	return func(i, j int) bool {
+		return absRank(cards[i]) < absRank(cards[j])
+	}
+}
+
+func absRank(c Card) int {
+	return int(c.Suit) * int(maxRank) * int(c.Rank)
 }
