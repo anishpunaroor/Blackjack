@@ -17,6 +17,26 @@ func (h Hand) String() string {
 	return strings.Join(strs, ", ")
 }
 
+func (h Hand) DealerString() string {
+	return h[0].String() + ", HIDDEN"
+}
+
+func (h Hand) MinScore() int {
+	score := 0
+	for _, c := range h {
+		score += min(int(c.Rank), 10)
+	}
+	return score
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
 func main() {
 	cards := deck.New(deck.NumDeck(3), deck.Shuffle)
 	var card deck.Card
@@ -27,8 +47,26 @@ func main() {
 			*hand = append(*hand, card)
 		}
 	}
-	fmt.Println("Player: ", player)
-	fmt.Println("Dealer: ", dealer)
+	var input string
+	for input != "s" {
+		fmt.Println("Player: ", player)
+		fmt.Println("Dealer: ", dealer.DealerString())
+		fmt.Println("What will you do? (h)it, (s)tand")
+		fmt.Scanf("%s\n", &input)
+		switch input {
+		case "h":
+			card, cards = draw(cards)
+			player = append(player, card)
+		case "s":
+			continue
+		default:
+			fmt.Println("Enter a valid option.")
+		}
+
+	}
+	fmt.Println("--FINAL HANDS--")
+	fmt.Println("Player: ", player, "\nScore: ", player.MinScore())
+	fmt.Println("Dealer: ", dealer, "\nScore: ", dealer.MinScore())
 }
 
 func draw(cards []deck.Card) (deck.Card, []deck.Card) {
