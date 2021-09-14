@@ -2,7 +2,9 @@ package deck
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
+	"time"
 )
 
 type Suit uint8
@@ -95,4 +97,16 @@ func Less(cards []Card) func(i, j int) bool {
 
 func absRank(c Card) int {
 	return int(c.Suit) * int(maxRank) * int(c.Rank)
+}
+
+func Shuffle(cards []Card) []Card {
+	shuf := make([]Card, len(cards))
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	for len(shuf) > 0 {
+		n := len(shuf)
+		randIndex := r.Intn(n)
+		shuf[n-1], shuf[randIndex] = shuf[randIndex], shuf[n-1]
+		shuf = shuf[:n-1]
+	}
+	return shuf
 }
