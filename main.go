@@ -64,7 +64,7 @@ func main() {
 	}
 	var input string
 	for input != "s" {
-		fmt.Println("Player: ", player)
+		fmt.Println("\nPlayer: ", player)
 		fmt.Println("Dealer: ", dealer.DealerString())
 		fmt.Println("What will you do? (h)it, (s)tand")
 		fmt.Scanf("%s\n", &input)
@@ -79,9 +79,28 @@ func main() {
 		}
 
 	}
+
+	// If dealer's score is less than 16, we hit. If dealer has a soft 17, then we hit.
+	for dealer.Score() <= 16 || (dealer.Score() == 17 && dealer.MinScore() != 17) {
+		card, cards = draw(cards)
+		dealer = append(dealer, card)
+	}
+	pScore, dScore := player.Score(), dealer.Score()
 	fmt.Println("--FINAL HANDS--")
-	fmt.Println("Player: ", player, "\nScore: ", player.Score())
-	fmt.Println("Dealer: ", dealer, "\nScore: ", dealer.Score())
+	fmt.Println("Player: ", player, "\nScore: ", pScore)
+	fmt.Println("Dealer: ", dealer, "\nScore: ", dScore)
+	switch {
+	case pScore > 21:
+		fmt.Println("You busted")
+	case dScore > 21:
+		fmt.Println("Dealer busted")
+	case pScore > dScore:
+		fmt.Println("You win!")
+	case dScore > pScore:
+		fmt.Println("You lose.")
+	case pScore == dScore:
+		fmt.Print("It's a draw.")
+	}
 }
 
 // Draw a card from the top
