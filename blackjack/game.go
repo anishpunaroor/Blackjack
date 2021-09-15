@@ -92,9 +92,13 @@ func Deal(g *Game) {
 
 // Play the game
 func (g *Game) Play(ai AI) int {
-	g.deck = deck.New(deck.NumDeck(3), deck.Shuffle)
-
-	for i := 0; i < 2; i++ {
+	g.deck = deck.New(deck.NumDeck(g.nDecks), deck.Shuffle)
+	min := 52 * g.nDecks / 3
+	for i := 0; i < g.nHands; i++ {
+		// Reshuffle deck if it contains less than a third of the cards
+		if len(g.deck) < min {
+			g.deck = deck.New(deck.NumDeck(g.nDecks), deck.Shuffle)
+		}
 		Deal(g)
 
 		for g.state == statePlayerTurn {
