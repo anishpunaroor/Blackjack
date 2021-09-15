@@ -9,8 +9,7 @@ import (
 type state int8
 
 const (
-	stateBet state = iota
-	statePlayerTurn
+	statePlayerTurn state = iota
 	stateDealerTurn
 	stateHandOver
 )
@@ -49,15 +48,20 @@ func New(opts Options) Game {
 type Game struct {
 
 	// Hidden fields
-	deck     []deck.Card
+
 	nDecks   int
-	state    state
 	nHands   int
-	player   []deck.Card
+	BJPayout float64
+
+	state state
+	deck  []deck.Card
+
+	player  []deck.Card
+	plrBet  int
+	balance int
+
 	dealer   []deck.Card
 	dealerAI AI
-	balance  int
-	BJPayout float64
 }
 
 // Determine the current hand in the game
@@ -74,6 +78,11 @@ func (g *Game) CurrentHand() *[]deck.Card {
 
 func draw(cards []deck.Card) (deck.Card, []deck.Card) {
 	return cards[0], cards[1:]
+}
+
+func Bet(g *Game, ai AI, shuffle bool) {
+	bet := ai.Bet(shuffle)
+	g.plrBet = bet
 }
 
 // Deal out the cards to the player and dealer in the game
@@ -95,10 +104,13 @@ func (g *Game) Play(ai AI) int {
 	g.deck = deck.New(deck.NumDeck(g.nDecks), deck.Shuffle)
 	min := 52 * g.nDecks / 3
 	for i := 0; i < g.nHands; i++ {
+		shuffle := false
 		// Reshuffle deck if it contains less than a third of the cards
 		if len(g.deck) < min {
 			g.deck = deck.New(deck.NumDeck(g.nDecks), deck.Shuffle)
+			shuffle = true
 		}
+		Bet(g, ai, shuffle)
 		Deal(g)
 
 		for g.state == statePlayerTurn {
@@ -138,23 +150,24 @@ func MoveStand(g *Game) {
 // End the blackjack game and display the results
 func EndHand(g *Game, ai AI) {
 	pScore, dScore := Score(g.player...), Score(g.dealer...)
+	winnings := g.plrBet
 
 	switch {
 	case pScore > 21:
 		fmt.Println("You busted")
-		g.balance--
+		winnings = -winnings
 	case dScore > 21:
 		fmt.Println("Dealer busted")
-		g.balance++
 	case pScore > dScore:
 		fmt.Println("You win!")
-		g.balance++
 	case dScore > pScore:
 		fmt.Println("You lose.")
-		g.balance--
+		winnings = -winnings
 	case pScore == dScore:
 		fmt.Print("It's a draw.")
+		winnings = 0
 	}
+	g.balance += winnings
 	fmt.Println()
 	ai.Results([][]deck.Card{g.player}, g.dealer)
 	g.player = nil
