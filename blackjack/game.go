@@ -78,7 +78,7 @@ func MoveStand(g *Game) {
 	g.state++
 }
 
-//
+// End the blackjack game and display the results
 func EndHand(g *Game, ai AI) {
 	pScore, dScore := Score(g.player...), Score(g.dealer...)
 
@@ -125,7 +125,7 @@ func Soft(hand ...deck.Card) bool {
 	return minScore != score
 }
 
-// Determine the minimum score of a hand, counting ace as 1
+// Determine the minimum score of a hand, counting ace as 1 point
 func MinScore(hand ...deck.Card) int {
 	score := 0
 	for _, c := range hand {
