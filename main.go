@@ -27,33 +27,37 @@ type GameState struct {
 func main() {
 	var gs GameState
 	gs = Shuffle(gs)
-	gs = Deal(gs)
 
-	var input string
-	for gs.State == StatePlayerTurn {
-		fmt.Println("\nPlayer: ", gs.Player)
-		fmt.Println("Dealer: ", gs.Dealer.DealerString())
-		fmt.Println("What will you do? (h)it, (s)tand")
-		fmt.Scanf("%s\n", &input)
-		switch input {
-		case "h":
-			gs = Hit(gs)
-		case "s":
-			gs = Stand(gs)
-		default:
-			fmt.Println("Enter a valid option.")
+	for i := 0; i < 10; i++ {
+		gs = Deal(gs)
+
+		var input string
+		for gs.State == StatePlayerTurn {
+			fmt.Println("\nPlayer: ", gs.Player)
+			fmt.Println("Dealer: ", gs.Dealer.DealerString())
+			fmt.Println("What will you do? (h)it, (s)tand")
+			fmt.Scanf("%s\n", &input)
+			switch input {
+			case "h":
+				gs = Hit(gs)
+			case "s":
+				gs = Stand(gs)
+			default:
+				fmt.Println("Enter a valid option.")
+			}
 		}
+
+		// If dealer's score is less than 16, we hit. If dealer has a soft 17, then we hit.
+		for gs.State == StateDealerTurn {
+			if gs.Dealer.Score() <= 16 || (gs.Dealer.Score() == 17 && gs.Dealer.MinScore() != 17) {
+				gs = Hit(gs)
+			} else {
+				gs = Stand(gs)
+			}
+		}
+		gs = EndHand(gs)
 	}
 
-	// If dealer's score is less than 16, we hit. If dealer has a soft 17, then we hit.
-	for gs.State == StateDealerTurn {
-		if gs.Dealer.Score() <= 16 || (gs.Dealer.Score() == 17 && gs.Dealer.MinScore() != 17) {
-			gs = Hit(gs)
-		} else {
-			gs = Stand(gs)
-		}
-	}
-	gs = EndHand(gs)
 }
 
 func EndHand(gs GameState) GameState {
