@@ -18,6 +18,14 @@ func (ai dealerAI) Bet() int {
 	return 1
 }
 
+func (ai dealerAI) Play(hand []deck.Card, dealer deck.Card) Move {
+	dScore := Score(hand...)
+	if dScore <= 16 || (dScore == 17 && Soft(hand...)) {
+		return MoveHit
+	}
+	return MoveStand
+}
+
 func (ai dealerAI) Results(hand [][]deck.Card, dealer []deck.Card) {
 
 }
@@ -26,6 +34,10 @@ type humanAI struct{}
 
 func HumanAI() AI {
 	return humanAI{}
+}
+
+func (ai humanAI) Bet() int {
+	return 1
 }
 
 func (ai humanAI) Play(hand []deck.Card, dealer deck.Card) Move {
