@@ -50,7 +50,7 @@ func (ai humanAI) Play(hand []deck.Card, dealer deck.Card) Move {
 	for {
 		fmt.Println("\nPlayer: ", hand)
 		fmt.Println("Dealer: ", dealer)
-		fmt.Println("What will you do? (h)it, (s)tand")
+		fmt.Println("What will you do? (h)it, (s)tand, (d)ouble")
 		var input string
 		fmt.Scanf("%s\n", &input)
 		switch input {
@@ -58,14 +58,19 @@ func (ai humanAI) Play(hand []deck.Card, dealer deck.Card) Move {
 			return MoveHit
 		case "s":
 			return MoveStand
+		case "d":
+			return MoveDouble
 		default:
 			fmt.Println("Enter a valid option.")
 		}
 	}
 }
 
-func (ai humanAI) Results(hand [][]deck.Card, dealer []deck.Card) {
-	fmt.Println("==FINAL HANDS==")
-	fmt.Println("Player:", hand)
+func (ai humanAI) Results(hands [][]deck.Card, dealer []deck.Card) {
+	fmt.Println("--FINAL HANDS--")
+	fmt.Println("Player:")
+	for _, h := range hands {
+		fmt.Println(" ", h)
+	}
 	fmt.Println("Dealer:", dealer)
 }

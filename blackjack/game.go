@@ -1,6 +1,7 @@
 package blackjack
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/anishpunaroor/Blackjack/deck"
@@ -32,17 +33,13 @@ func New(opts Options) Game {
 	if opts.Hands == 0 {
 		opts.Hands = 100
 	}
-	if opts.BJPayout == 0 {
+	if opts.BJPayout == 0.0 {
 		opts.BJPayout = 1.5
 	}
 	g.nDecks = opts.Hands
 	g.nHands = opts.Decks
 	g.BJPayout = opts.BJPayout
-	return Game{
-		state:    statePlayerTurn,
-		dealerAI: dealerAI{},
-		balance:  0,
-	}
+	return g
 }
 
 type Game struct {
@@ -114,7 +111,7 @@ func (g *Game) Play(ai AI) int {
 		Deal(g)
 
 		if Blackjack(g.dealer...) {
-			EndHand(g, ai)
+			EndRound(g, ai)
 			continue
 		}
 
@@ -122,7 +119,15 @@ func (g *Game) Play(ai AI) int {
 			hand := make([]deck.Card, len(g.player))
 			copy(hand, g.player)
 			move := ai.Play(hand, g.dealer[0])
-			move(g)
+			err := move(g)
+			switch err {
+			case errBust:
+				MoveStand(g)
+			case nil:
+				// Nothing happens
+			default:
+				panic(err)
+			}
 		}
 		for g.state == stateDealerTurn {
 			hand := make([]deck.Card, len(g.dealer))
@@ -130,30 +135,46 @@ func (g *Game) Play(ai AI) int {
 			move := g.dealerAI.Play(hand, g.dealer[0])
 			move(g)
 		}
-		EndHand(g, ai)
+		EndRound(g, ai)
 	}
 	return g.balance
 }
 
-type Move func(*Game)
+var (
+	errBust = errors.New("hand score over 21")
+)
+
+type Move func(*Game) error
 
 // Hit in blackjack, adding a card to the current hand
-func MoveHit(g *Game) {
+func MoveHit(g *Game) error {
 	hand := g.CurrentHand()
 	var card deck.Card
 	card, g.deck = draw(g.deck)
 	*hand = append(*hand, card)
 	if Score(*hand...) > 21 {
-		MoveStand(g)
+		return errBust
 	}
+	return nil
 }
 
-func MoveStand(g *Game) {
+func MoveDouble(g *Game) error {
+	if len(g.player) != 2 {
+		return errors.New("only double on a hand with 2 cards")
+	}
+	g.plrBet *= 2
+	MoveHit(g)
+	MoveHit(g)
+	return MoveStand(g)
+}
+
+func MoveStand(g *Game) error {
 	g.state++
+	return nil
 }
 
 // End the blackjack game and display the results
-func EndHand(g *Game, ai AI) {
+func EndRound(g *Game, ai AI) {
 	pScore, dScore := Score(g.player...), Score(g.dealer...)
 	pBlackjack, dBlackjack := Blackjack(g.player...), Blackjack(g.dealer...)
 	winnings := g.plrBet
