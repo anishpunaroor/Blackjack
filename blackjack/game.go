@@ -9,12 +9,36 @@ import (
 type state int8
 
 const (
-	statePlayerTurn state = iota
+	stateBet state = iota
+	statePlayerTurn
 	stateDealerTurn
 	stateHandOver
 )
 
-func New() Game {
+type Options struct {
+	Decks    int
+	Hands    int
+	BJPayout float64
+}
+
+func New(opts Options) Game {
+	g := Game{
+		state:    statePlayerTurn,
+		dealerAI: dealerAI{},
+		balance:  0,
+	}
+	if opts.Decks == 0 {
+		opts.Decks = 3
+	}
+	if opts.Hands == 0 {
+		opts.Hands = 100
+	}
+	if opts.BJPayout == 0 {
+		opts.BJPayout = 1.5
+	}
+	g.nDecks = opts.Hands
+	g.nHands = opts.Decks
+	g.BJPayout = opts.BJPayout
 	return Game{
 		state:    statePlayerTurn,
 		dealerAI: dealerAI{},
@@ -23,12 +47,17 @@ func New() Game {
 }
 
 type Game struct {
+
+	// Hidden fields
 	deck     []deck.Card
+	nDecks   int
 	state    state
+	nHands   int
 	player   []deck.Card
 	dealer   []deck.Card
 	dealerAI AI
 	balance  int
+	BJPayout float64
 }
 
 // Determine the current hand in the game
@@ -61,7 +90,7 @@ func Deal(g *Game) {
 	g.state = statePlayerTurn
 }
 
-//
+// Play the game
 func (g *Game) Play(ai AI) int {
 	g.deck = deck.New(deck.NumDeck(3), deck.Shuffle)
 
