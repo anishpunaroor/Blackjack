@@ -113,6 +113,11 @@ func (g *Game) Play(ai AI) int {
 		Bet(g, ai, shuffle)
 		Deal(g)
 
+		if Blackjack(g.dealer...) {
+			EndHand(g, ai)
+			continue
+		}
+
 		for g.state == statePlayerTurn {
 			hand := make([]deck.Card, len(g.player))
 			copy(hand, g.player)
@@ -150,9 +155,16 @@ func MoveStand(g *Game) {
 // End the blackjack game and display the results
 func EndHand(g *Game, ai AI) {
 	pScore, dScore := Score(g.player...), Score(g.dealer...)
+	pBlackjack, dBlackjack := Blackjack(g.player...), Blackjack(g.dealer...)
 	winnings := g.plrBet
 
 	switch {
+	case pBlackjack && dBlackjack:
+		winnings = 0
+	case pBlackjack:
+		winnings *= int(float64(winnings) * g.BJPayout)
+	case dBlackjack:
+		winnings = -winnings
 	case pScore > 21:
 		fmt.Println("You busted")
 		winnings = -winnings
@@ -193,6 +205,11 @@ func Soft(hand ...deck.Card) bool {
 	minScore := MinScore(hand...)
 	score := Score(hand...)
 	return minScore != score
+}
+
+// Return true if the hand is a natural blackjack
+func Blackjack(hand ...deck.Card) bool {
+	return len(hand) == 2 && Score(hand...) == 21
 }
 
 // Determine the minimum score of a hand, counting ace as 1 point
