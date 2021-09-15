@@ -6,10 +6,10 @@ import (
 	"github.com/anishpunaroor/Blackjack/deck"
 )
 
-type State int8
+type state int8
 
 const (
-	statePlayerTurn State = iota
+	statePlayerTurn state = iota
 	stateDealerTurn
 	stateHandOver
 )
@@ -24,7 +24,7 @@ func New() Game {
 
 type Game struct {
 	deck     []deck.Card
-	state    State
+	state    state
 	player   []deck.Card
 	dealer   []deck.Card
 	dealerAI AI
@@ -59,6 +59,30 @@ func Deal(g *Game) {
 		g.dealer = append(g.dealer, card)
 	}
 	g.state = statePlayerTurn
+}
+
+//
+func (g *Game) Play(ai AI) int {
+	g.deck = deck.New(deck.NumDeck(3), deck.Shuffle)
+
+	for i := 0; i < 2; i++ {
+		Deal(g)
+
+		for g.state == statePlayerTurn {
+			hand := make([]deck.Card, len(g.player))
+			copy(hand, g.player)
+			move := ai.Play(hand, g.dealer[0])
+			move(g)
+		}
+		for g.state == stateDealerTurn {
+			hand := make([]deck.Card, len(g.dealer))
+			copy(hand, g.dealer)
+			move := g.dealerAI.Play(hand, g.dealer[0])
+			move(g)
+		}
+		EndHand(g, ai)
+	}
+	return g.balance
 }
 
 type Move func(*Game)
