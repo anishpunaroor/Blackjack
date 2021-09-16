@@ -79,6 +79,9 @@ func draw(cards []deck.Card) (deck.Card, []deck.Card) {
 
 func Bet(g *Game, ai AI, shuffle bool) {
 	bet := ai.Bet(shuffle)
+	if bet < 100 {
+		panic("bet must be at least 100")
+	}
 	g.plrBet = bet
 }
 
@@ -159,11 +162,10 @@ func MoveHit(g *Game) error {
 }
 
 func MoveDouble(g *Game) error {
-	if len(g.player) != 2 {
+	if len(*g.CurrentHand()) != 2 {
 		return errors.New("only double on a hand with 2 cards")
 	}
 	g.plrBet *= 2
-	MoveHit(g)
 	MoveHit(g)
 	return MoveStand(g)
 }
