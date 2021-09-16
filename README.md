@@ -11,5 +11,6 @@ really helped me understand the benefits of Go, such as concurrency with gorouti
 ## Rules
 
 ## Todo
-[ ] Implement splitting of hands in the game
-[ ] Allow user to modify decks, hands, and multiplier through command line options
+- [ ] Implement splitting of hands in the game
+- [ ] Allow user to modify decks, hands, and multiplier through command line options
+- [ ] Design an AI which will automatically play against the dealer
