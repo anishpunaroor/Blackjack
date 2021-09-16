@@ -20,7 +20,7 @@ func (ai dealerAI) Bet(shuffle bool) int {
 
 func (ai dealerAI) Play(hand []deck.Card, dealer deck.Card) Move {
 	dScore := Score(hand...)
-	if dScore <= 16 || (dScore == 17 && Soft(hand...)) {
+	if dScore <= 14 || (dScore == 17 && Soft(hand...)) {
 		return MoveHit
 	}
 	return MoveStand
@@ -36,6 +36,7 @@ func HumanAI() AI {
 	return humanAI{}
 }
 
+//
 func (ai humanAI) Bet(shuffle bool) int {
 	if shuffle {
 		fmt.Println("The deck was shuffled.")

@@ -101,7 +101,7 @@ func Deal(g *Game) {
 
 // Play the game
 func (g *Game) Play(ai AI) int {
-	g.deck = deck.New(deck.NumDeck(g.nDecks), deck.Shuffle)
+	g.deck = nil
 	min := 52 * g.nDecks / 3
 	for i := 0; i < g.nHands; i++ {
 		shuffle := false

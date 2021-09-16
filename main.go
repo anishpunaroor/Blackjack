@@ -4,11 +4,12 @@ import (
 	"fmt"
 
 	"github.com/anishpunaroor/Blackjack/blackjack"
+	"github.com/anishpunaroor/Blackjack/deck"
 )
 
 func main() {
 	opts := blackjack.Options{
-		Decks:    3,
+		Decks:    4,
 		Hands:    2,
 		BJPayout: 1.5,
 	}
@@ -37,4 +38,22 @@ func (ai *baseAI) Bet(shuffle bool) int {
 	default:
 		return 100
 	}
+}
+
+func (ai *baseAI) Play(hand []deck.Card, dealer deck.Card) blackjack.Move {
+	score := blackjack.Score(hand...)
+	// The AI will double down when the score is 10 or 11, or the hand is soft
+	if len(hand) == 2 {
+		if (score == 10 || score == 11) && !blackjack.Soft(hand...) {
+			return blackjack.MoveDouble
+		}
+	}
+	dScore := blackjack.Score(dealer)
+	if dScore >= 5 && dScore <= 6 {
+		return blackjack.MoveStand
+	}
+	if score < 13 {
+		return blackjack.MoveHit
+	}
+	return blackjack.MoveStand
 }
