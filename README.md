@@ -7,8 +7,19 @@ I wanted to learn and become familiar with programming in Go, and this project
 really helped me understand the benefits of Go, such as concurrency with goroutines and functional options. I liked how Go seems to combine various aspects from other languages I am comfortable with, such as pointers and structs from C/C++ along with the readablility and built-in functions of Python. 
 
 ## Installation
+First, use a terminal to run
 
-## Rules
+```
+git clone https://github.com/anishpunaroor/Blackjack
+```
+Then, 
+```
+cd Blackjack
+```
+Finally, 
+```
+go run main.go
+```
 
 ## Todo
 - [ ] Implement splitting of hands in the game
