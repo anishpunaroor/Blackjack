@@ -4,7 +4,11 @@ FROM golang:1.16-alpine
 
 WORKDIR /blackjack
 
-COPY go.sum ./
+# Download required Go modules 
+COPY go.mod ./
+RUN go mod download
+
+COPY *.go ./
 
 RUN go build -o /blackjack-start
 
